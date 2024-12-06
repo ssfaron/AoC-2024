@@ -5,54 +5,65 @@
 ######################################################
 
 ### Part 1 ###
-input = "sample.txt"
-count = 0
+input = "input.txt"
 
 def walk(rowStart, columnStart, direction):
     if direction == "N":
-        for i in blocks:
-            if columnStart == blocks[i] and i < rowStart:
-                newRowStart = i+1
-                newColumnStart = columnStart
-                newDirection = "E"
-                break
+        for row in range(rowStart, -1, -1):
+            if columnStart in blocks[row]:
+                if row < rowStart:
+                    newRowStart = row+1
+                    newColumnStart = columnStart
+                    newDirection = "E"
+                    break
         else:
-            newRowStart = -1
+            newRowStart = 0
             newColumnStart = columnStart
             newDirection = "N"
+        for i in range(newRowStart, rowStart+1):
+            map[i][columnStart] = 1
     elif direction == "E":
-        for i in blocks:
-            if i in blocks and blocks[i] > columnStart:
-                newRowStart = rowStart
-                newColumnStart = blocks[i]-1
-                newDirection = "S"
-                break
+        if rowStart in blocks.keys():
+            for column in blocks[rowStart]:
+                if column > columnStart:
+                    newRowStart = rowStart
+                    newColumnStart = column-1
+                    newDirection = "S"
+                    break
         else:
             newRowStart = rowStart
-            newColumnStart = len(lines)
+            newColumnStart = len(lines)-1
             newDirection = "E"
+        for i in range(columnStart, newColumnStart+1): #bug here -- there is no block to the right so it doesn't go into else
+            map[rowStart][i] = 1
     elif direction == "S":
-        for i in blocks:
-            if columnStart == blocks[i] and i > rowStart:
-                newRowStart = i-1
-                newColumnStart = columnStart
-                newDirection = "W"
-                break
+        for row in range(rowStart, rowBounds[1]+1):
+            if columnStart in blocks[row]:
+                if row > rowStart:
+                    newRowStart = row-1
+                    newColumnStart = columnStart
+                    newDirection = "W"
+                    break
         else:
-            newRowStart = len(lines)
+            newRowStart = len(lines)-1
             newColumnStart = columnStart
             newDirection = "S"
+        for i in range(rowStart, newRowStart+1):
+            map[i][columnStart] = 1
     elif direction == "W":
-        for i in blocks:
-            if i in blocks and blocks[i] < columnStart:
-                newRowStart = rowStart
-                newColumnStart = blocks[i]+1
-                newDirection = "S"
-                break
+        if rowStart in blocks.keys():
+            for column in range(len(blocks[rowStart])-1, -1, -1):
+                if blocks[rowStart][column] < columnStart:
+                    newRowStart = rowStart
+                    newColumnStart = blocks[rowStart][column]+1
+                    newDirection = "N"
+                    break
         else:
             newRowStart = rowStart
-            newColumnStart = len(lines)
+            newColumnStart = len(lines)-1
             newDirection = "W"
+        for i in range(newColumnStart, columnStart+1):
+            map[rowStart][i] = 1
 
     return newRowStart, newColumnStart, newDirection
 
@@ -61,22 +72,31 @@ def walk(rowStart, columnStart, direction):
 with open(input) as f:
     lines = f.readlines()
 
+    # get map bounds
+    for line in lines:
+        rowBounds = (0, len(lines)-1)
+        columnBounds = (0, len(line)-2)
+        break
+
+    # create map
+    map = [[0 for col in range(columnBounds[1]+1)] for row in range(rowBounds[1]+1)]
+
     blocks = {}
     for i in range(0, len(lines)):
+        blocks[i] = []
         for j in range(0, len(lines[i])):
             if lines[i][j] == "#":
-                blocks[i] = j
+                blocks[i].append(j)
             elif lines[i][j] == "^":
                 guard = (i,j)
-
-# map bounds
-rowBounds = (0,9)
-columnBounds = (0,9)
 
 # begin at guard's position and go straight until we hit a block
 rowStart = guard[0]
 columnStart = guard[1]
 direction = "N"
+
+# mark the guard's spot on the map
+map[rowStart][columnStart] = 1
 
 while rowStart > rowBounds[0] and rowStart < rowBounds[1] and columnStart > columnBounds[0] and columnStart < columnBounds[1]:
 
@@ -86,5 +106,8 @@ while rowStart > rowBounds[0] and rowStart < rowBounds[1] and columnStart > colu
     columnStart = newColumnStart
     direction = newDirection
 
+count = 0
+for i in range(0, len(map)):
+    count = map[i].count(1) + count
 
 print("hi")
