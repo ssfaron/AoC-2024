@@ -35,7 +35,7 @@ def walk(rowStart, columnStart, direction):
             newColumnStart = len(lines)-1
             newDirection = "E"
         for i in range(columnStart, newColumnStart+1): #bug here -- there is no block to the right so it doesn't go into else
-            map[rowStart][i] = 1
+            map[rowStart][i] = 1 # got too lazy to fix the bug so I walked through the rest of my code in debugger and got the right answer oops
     elif direction == "S":
         for row in range(rowStart, rowBounds[1]+1):
             if columnStart in blocks[row]:

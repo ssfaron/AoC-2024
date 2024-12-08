@@ -102,7 +102,7 @@ for i in range(0, len(lines)):
     for j in range(0, len(lines[i])):
         if lines[i][j] == "X":
             result, position = checkForM(i,j)
-            if result == True:
+            if result == True: # only checks for the first M, doesnt maintain directionality
                 result2, position2 = checkForLetter(i,j,position, "A")
                 if result == True:
                     result3, position3 = checkForLetter(i,j,position, "S")
